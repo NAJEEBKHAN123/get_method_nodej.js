@@ -91,7 +91,7 @@ const server = http.createServer((req, res) => {
   else if (req.method === 'DELETE' && req.url === '/data') {
     storedData = {}; // Clear the stored data
     res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Data deleted successfully!' }));
+    res.end(JSON.stringify({ message: 'Data deleted successfully!!' }));
   }
   // If route not found
   else {
