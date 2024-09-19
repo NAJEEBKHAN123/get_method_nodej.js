@@ -1,106 +1,59 @@
-const http = require("http");
-
-let storedData = {
-  name: "Initial Name",
-  password: "Initial Password"
-};
+const http = require('http'); // Convert import to require
 
 const server = http.createServer((req, res) => {
-  if (req.method === "GET" && req.url === '/') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Success! GET request on Home page' }));
-  }
-  else if (req.method === "GET" && req.url === '/about') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Success! GET request on About page' }));
-  }
-  else if (req.method === "GET" && req.url === '/contact') {
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Success! GET request on Contact page' }));
-  }
-  // POST request to add data
-  else if (req.method === 'POST' && req.url === '/data') {
-    let body = '';
+    const { method, url } = req;
+    const parsedUrl = new URL(url, `http://${req.headers.host}`);
 
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      try {
-        const parsedData = JSON.parse(body);
-        const { name, password } = parsedData;
-        if (name && password) {
-          storedData.name = name;
-          storedData.password = password;
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            message: 'Data received successfully!',
-            receivedData: { name, password }
-          }));
-        } else {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            message: 'Bad Request: Name and password are required!'
-          }));
-        }
-      } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          message: 'Invalid JSON format!',
-          error: error.message
-        }));
-      }
-    });
-  }
-  // PUT request to update data
-  else if (req.method === 'PUT' && req.url === '/data') {
-    let body = '';
+    // Set response header to JSON
+    res.setHeader('Content-Type', 'application/json');
 
-    req.on('data', chunk => {
-      body += chunk.toString();
-    });
-    req.on('end', () => {
-      try {
-        const parsedData = JSON.parse(body);
-        const { name, password } = parsedData;
+    // GET Request
+    if (method === 'GET' && parsedUrl.pathname === '/') {
+        res.statusCode = 200;
+        res.end(JSON.stringify({ message: 'GET request - Fetching on Home page' }));
+   
+    // POST Request
+    } else if(method === 'GET' && parsedUrl.pathname === '/about'){
+        res.end(JSON.stringify({message : 'GET request - Fetching on Home page'}))
+    }
+     else if (method === 'POST' && parsedUrl.pathname === '/api/items') {
+        let body = '';
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            const newItem = JSON.parse(body);
+            res.statusCode = 201;
+            res.end(JSON.stringify({ message: `POST request - Adding new item`, data: newItem }));
+        });
 
-        if (name && password) {
-          storedData.name = name;
-          storedData.password = password;
-          res.writeHead(200, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            message: 'Data updated successfully!',
-            updatedData: storedData
-          }));
-        } else {
-          res.writeHead(400, { 'Content-Type': 'application/json' });
-          res.end(JSON.stringify({
-            message: 'Bad Request: Name and password are required for update!'
-          }));
-        }
-      } catch (error) {
-        res.writeHead(400, { 'Content-Type': 'application/json' });
-        res.end(JSON.stringify({
-          message: 'Invalid JSON format!',
-          error: error.message
-        }));
-      }
-    });
-  }
-  // DELETE request to delete data
-  else if (req.method === 'DELETE' && req.url === '/data') {
-    storedData = {}; // Clear the stored data
-    res.writeHead(200, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Data deleted successfully!!' }));
-  }
-  // If route not found
-  else {
-    res.writeHead(404, { 'Content-Type': 'application/json' });
-    res.end(JSON.stringify({ message: 'Not Found' }));
-  }
+    // PUT Request
+    } else if (method === 'PUT' && parsedUrl.pathname.startsWith('/api/items/')) {
+        let body = '';
+        const itemId = parsedUrl.pathname.split('/').pop();
+        req.on('data', chunk => {
+            body += chunk.toString();
+        });
+        req.on('end', () => {
+            const updatedItem = JSON.parse(body);
+            res.statusCode = 200;
+            res.end(JSON.stringify({ message: `PUT request - Updating item ${itemId}`, data: updatedItem }));
+        });
+
+    // DELETE Request
+    } else if (method === 'DELETE' && parsedUrl.pathname.startsWith('/api/items/')) {
+        const itemId = parsedUrl.pathname.split('/').pop();
+        res.statusCode = 200;
+        res.end(JSON.stringify({ message: `DELETE request - Deleting item ${itemId}` }));
+
+    // Handle 404 Not Found
+    } else {
+        res.statusCode = 404;
+        res.end(JSON.stringify({ message: 'Route not found' }));
+    }
 });
 
-const port = 3000;
-server.listen(port, () => {
-  console.log(`Server is running on http://localhost:${port}`);
+const PORT = 3000;
+server.listen(PORT, () => {
+    console.log(`Server running on http://localhost:${PORT}`);
 });
