@@ -5,6 +5,10 @@ const server = http.createServer((req, res) =>{
    res.writeHead(200, {'content-Type' : 'application/json'})
    res.end(JSON.stringify({message: 'Success! GET request on Home page'}))
   }
+  else if(req.method === "GET" && req.url === '/about'){
+   res.writeHead(200, {'content-Type' : 'application/json'})
+   res.end(JSON.stringify({message: 'Success! GET request on About page'}))
+  }
   else {
    res.writeHead(404, {'content-Type' : 'application/json'})
    res.end(JSON.stringify({message: '404 Not Found!'}))
