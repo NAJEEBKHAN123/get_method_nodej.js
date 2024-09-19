@@ -11,11 +11,17 @@ const server = http.createServer((req, res) => {
     if (method === 'GET' && parsedUrl.pathname === '/') {
         res.statusCode = 200;
         res.end(JSON.stringify({ message: 'GET request - Fetching on Home page' }));
-   
-    // POST Request
+
     } else if(method === 'GET' && parsedUrl.pathname === '/about'){
+        res.statusCode = 200;
         res.end(JSON.stringify({message : 'GET request - Fetching on Home page'}))
     }
+     else if(method === 'GET' && parsedUrl.pathname === '/contact'){
+        res.statusCode = 200;
+        res.end(JSON.stringify({message : 'GET request - Fetching on Contact page'}))
+    }
+       
+    // POST Request
      else if (method === 'POST' && parsedUrl.pathname === '/api/items') {
         let body = '';
         req.on('data', chunk => {
@@ -44,7 +50,7 @@ const server = http.createServer((req, res) => {
     } else if (method === 'DELETE' && parsedUrl.pathname.startsWith('/api/items/')) {
         const itemId = parsedUrl.pathname.split('/').pop();
         res.statusCode = 200;
-        res.end(JSON.stringify({ message: `DELETE request - Deleting item ${itemId}` }));
+        res.end(JSON.stringify({ message: `DELETE request -- Deleting item ${itemId}` }));
 
     // Handle 404 Not Found
     } else {
